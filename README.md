@@ -2,30 +2,79 @@ This is a user friendly banking application which allows a user to desposit and 
 
 https://meet.google.com/vuq-kefu-yzw
 
-Observations:
-
--We create an object called o_1 using the MyClass default constructor
--We then create an object called o_2 using the user defined constructor
--We also create an object called o_3 and using the copy constructor
--Next, we create an object called o_4 using the copy constructor.
--After o_4 is created, o_4 uses copy assignment to make this object equal to o_1 so o_4’s data is overwritten.
--Following the copy assignment, we construct a new object called o_5 using the customer constructor then we use the move assignment operator which moves the contents of object o_1 to o_5.
--Next, o_1 uses the copy assignment operator and the move constructor to take over o_3’s data so whatever data that belonged to o_3 now belongs to o_1.
--We construct a new object called o_6 and assign it to  a function that constructs a MyClass object using the custom constructor and returns it.
--Object o_7 is then created and uses copy assignment  to assign it to a function that constructs an object of type MyClass using the custom constructor and returns the contents of the object so that o_7 now contains the data
-
-Vector:
-
--A vector of objects of type MyClass is created.
--Next, v_1 gets initialized to v_1[0] we use the emplace_back method on v_1 which constructs a new object and gives it the rvalue.
--Then we construct a new object using the custom constructor and append it to v_1 in the next line.
--Next, we construct a new object of type MyClass and initialize it with v_1[1] and put it at the end of vector v_1 using emplace_back.
--Next, we construct a new vector v_2 of MyClass objects and use copy assignment so v_2 equals v_1.
--In the next line, we construct a new vector called v_3 and assign it to the rvalues of v_1 using the move constructor.
-
-Pointers:
-
--A pointer up_1 is created and is made unique. It constructs an object of type MyClass then initializes it with u_1 using the custom constructor.
--A shared pointer sp_1 is created. It constructs a MyClass object and initializes it with s_1.
--Another unique pointer up_2 is created then, in the next line, we strip the data from up_1 and it’s given to up_3 which is a unique pointer.
--Another shared pointer is created called sp_2. Following the creation of sp_2, we use copy assignment to assign sp_2 to sp_1.
+MyClass o_1;
+  default ctor (1,unnamed)
+MyClass o_2("o_2");
+  custom ctor (2,o_2)
+MyClass o_3 = o_2;
+  copy ctor (3,copy of (2,o_2))
+MyClass o_4("o_4");
+  custom ctor (4,o_4)
+o_4 = o_1;
+  copy assign (4,o_4) from (1,unnamed)
+MyClass o_5(move(o_1));
+  move ctor (5,moved from unnamed)
+o_1 = move(o_3);
+  move assign (1,stolen) from (3,copy of (2,o_2))
+MyClass o_6 = make_new_object_good();
+  custom ctor (6,x)
+MyClass o_7 = make_new_object_bad();
+  custom ctor (7,y)
+  move ctor (8,moved from y)
+  dtor (7,stolen)
+open brace (vectors)
+vector<MyClass> v_1;
+v_1.emplace_back("v_1[0]");
+  custom ctor (9,v_1[0])
+v_1.push_back(MyClass("v_1[1]"));
+  custom ctor (10,v_1[1])
+  move ctor (11,moved from v_1[1])
+  move ctor (12,moved from v_1[0])
+  dtor (9,stolen)
+  dtor (10,stolen)
+v_1.emplace_back(MyClass("v_1[2]"));
+  custom ctor (13,v_1[2])
+  move ctor (14,moved from v_1[2])
+  move ctor (15,moved from moved from v_1[0])
+  dtor (12,stolen)
+  move ctor (16,moved from moved from v_1[1])
+  dtor (11,stolen)
+  dtor (13,stolen)
+vector<MyClass> v_2 = v_1;
+  copy ctor (17,copy of (15,moved from moved from v_1[0]))
+  copy ctor (18,copy of (16,moved from moved from v_1[1]))
+  copy ctor (19,copy of (14,moved from v_1[2]))
+vector<MyClass> v_3 = move(v_1);
+closing brace (vectors)
+  dtor (15,moved from moved from v_1[0])
+  dtor (16,moved from moved from v_1[1])
+  dtor (14,moved from v_1[2])
+  dtor (17,copy of (15,moved from moved from v_1[0]))
+  dtor (18,copy of (16,moved from moved from v_1[1]))
+  dtor (19,copy of (14,moved from v_1[2]))
+opening brace (pointers)
+auto up_1 = make_unique<MyClass>("u_1");
+  custom ctor (20,u_1)
+auto sp_1 = make_shared<MyClass>("s_1");
+  custom ctor (21,s_1)
+opening brace (inner pointers)
+auto up_2 = make_unique<MyClass>("u_2");
+  custom ctor (22,u_2)
+auto up_3 = move(up_1);
+auto sp_2 = make_shared<MyClass>("s_2");
+  custom ctor (23,s_2)
+sp_1 = sp_2;
+  dtor (21,s_1)
+closing brace (inner pointers)
+  dtor (20,u_1)
+  dtor (22,u_2)
+closing brace (pointers)
+  dtor (23,s_2)
+closing brace (main)
+  dtor (8,moved from y)
+  dtor (6,x)
+  dtor (5,moved from unnamed)
+  dtor (4,=(1,unnamed))
+  dtor (3,stolen)
+  dtor (2,o_2)
+  dtor (1,moved from copy of (2,o_2))
